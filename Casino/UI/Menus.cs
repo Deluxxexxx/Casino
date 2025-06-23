@@ -1,23 +1,21 @@
 using System.ComponentModel;
 using System.Formats.Asn1;
 using System.IO;
+using Casino.UI.Assets.Rulers;
 using Casino.Controllers;
 using Spectre.Console;
+using Casino.Services;
 
 namespace Casino.UI {
     public static class Menus {
-        public static void MainMenu() {
+        public static void Index() {
             
             string selectedOption = null;
-            bool salir = false;
+            bool exit = false;
 
-            while (salir == false) {
+            while (exit == false) {
 
-                var rule = new Rule("[#FFD700]Welcome to Caligula's Casino[/]");
-                rule.Justification = Justify.Center;
-                rule.Border = BoxBorder.Heavy;
-                rule.Style = Style.Parse("green");
-                AnsiConsole.Write(rule);
+                AnsiConsole.Write(Rulers.HeaderRule("Welcome To Caligula's Casino"));
 
                 selectedOption = AnsiConsole.Prompt(new SelectionPrompt<string>()
                     .Title("[white]What do you wish to do?[/]")
@@ -29,13 +27,13 @@ namespace Casino.UI {
                 switch (selectedOption) {
                     case "Login":
                     LoginMenu();
-                    salir = true;
+                    exit = true;
                     break;
                     case "Register":
                     RegisterMenu();
                     break;
                     case "Exit":
-                    salir = true;
+                    exit = true;
                     break;
                 }
             }
@@ -44,46 +42,42 @@ namespace Casino.UI {
         public static void RegisterMenu() {
 
             while (true) {
-                AuthController authController = new AuthController();
                 Console.WriteLine();
-                var rule = new Rule("[#FFD700]Register[/]");
-                rule.Justification = Justify.Center;
-                rule.Border = BoxBorder.Heavy;
-                rule.Style = Style.Parse("green");
-                AnsiConsole.Write(rule);
+                AnsiConsole.Write(Rulers.HeaderRule("Register"));
 
                 string name = AnsiConsole.Prompt(new TextPrompt<string>("Enter your Name: "));
                 string email = AnsiConsole.Prompt(new TextPrompt<string>("Enter your Email: "));
                 string password = AnsiConsole.Prompt(new TextPrompt<string>("Enter your Password: ").Secret());
                 string confirmPassword = AnsiConsole.Prompt(new TextPrompt<string>("Confirm Password: ").Secret());
 
-                authController.Register(name, email, password, confirmPassword);
+                AuthController.Instance.Register(name, email, password, confirmPassword);
                 return;
             }
         }
 
         public static void LoginMenu() {
-            while (true) { 
-                AuthController authController = new AuthController();
+            while (true) {
                 Console.WriteLine();
-                var rule = new Rule("[#FFD700]Login[/]");
-                rule.Justification = Justify.Center;
-                rule.Border = BoxBorder.Heavy;
-                rule.Style = Style.Parse("green");
-                AnsiConsole.Write(rule);
+                AnsiConsole.Write(Rulers.HeaderRule("Login"));
 
                 string email = AnsiConsole.Prompt(new TextPrompt<string>("Enter your Email: "));
-                string password = AnsiConsole.Prompt(new TextPrompt<string>("Enter your Password: "));
+                string password = AnsiConsole.Prompt(new TextPrompt<string>("Enter your Password: ").Secret());
 
-                if (authController.Login(email, password)) {
-                    AnsiConsole.MarkupLine("[green]Successful Login[/]");
+                if (AuthController.Instance.Login(email, password)) {
+                    AnsiConsole.Status().Start("Successful Login", ctx => {
+                        ctx.Spinner(Spinner.Known.Star);
+                        ctx.SpinnerStyle(Style.Parse("green"));
+                        Thread.Sleep(800);
+                    });
+                    return;
                 }
-                return;
             }
         }
 
-        public static void GameMenu() {
-            AnsiConsole.WriteLine("test");
+        public static void MainMenu() {
+            Console.Clear();
+            AnsiConsole.Write(Rulers.HeaderRule("Lobby"));
+            AnsiConsole.MarkupLine($"[green]Welcome {AuthController.Instance.getLoggedUser().Name}, what do you wish to do? [/]");
         }
     }
 }

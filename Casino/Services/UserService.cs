@@ -7,22 +7,22 @@ using System.IO;
 namespace Casino.Services {
     public class UserService {
 
-        private readonly string documentsPath;
-        private readonly string folderPath;
-        private readonly string dbPath;
+        private readonly string _documentsPath;
+        private readonly string _folderPath;
+        private readonly string _dbPath;
 
         public UserService() {
-            documentsPath = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
-            folderPath = Path.Combine(documentsPath, "CasinoApp");
+            _documentsPath = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
+            _folderPath = Path.Combine(_documentsPath, "CasinoApp");
 
-            if (!Directory.Exists(folderPath)) {
-                Directory.CreateDirectory(folderPath);
+            if (!Directory.Exists(_folderPath)) {
+                Directory.CreateDirectory(_folderPath);
             }
-            dbPath = Path.Combine(folderPath, "userdata.db");
+            _dbPath = Path.Combine(_folderPath, "userdata.db");
         }
 
         public bool RegisterUser(string name, string email, string password, int balance, List<int> tokens) {
-            using (var db = new LiteDatabase(dbPath)) {
+            using (var db = new LiteDatabase(_dbPath)) {
                 try {
                     var col = db.GetCollection<User>("users");
 
@@ -39,11 +39,11 @@ namespace Casino.Services {
         }
 
         public User LoginUser(string email, string password) {
-            using (var db = new LiteDatabase(dbPath)) {
+            using (var db = new LiteDatabase(_dbPath)) {
                 var col = db.GetCollection<User>("users");
 
                 try {
-                    var user = col.Find(u => u.Email.Equals(email) && u.Password.Equals(password)).FirstOrDefault();
+                    var user = col.Find(Query.And(Query.EQ("Email", email), Query.EQ("Password", password))).FirstOrDefault();
                     return user;
                 }
                 catch (Exception e) {

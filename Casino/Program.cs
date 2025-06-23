@@ -2,10 +2,11 @@
 using Casino.Models;
 using Casino.Controllers;
 using Casino.Services;
+using Spectre.Console;
 public class EntryPoint {
     public static void Main() {
-            Menus.MainMenu();
-            Menus.GameMenu();
-            return;
+        Menus.Index();
+        Menus.MainMenu();
+        return;
     }
 }

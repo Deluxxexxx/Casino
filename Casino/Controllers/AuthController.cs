@@ -8,6 +8,9 @@ namespace Casino.Controllers {
 
 		UserService userService = new Casino.Services.UserService();
 		User loggedUser;
+		private static AuthController _instance;
+		public static AuthController Instance => _instance ??= new AuthController();
+		public User getLoggedUser() { return loggedUser; }
 		public void Register(string name, string email, string password, string confirmPassword) {
 			if (string.IsNullOrEmpty(name) || string.IsNullOrEmpty(email)) {
 				AnsiConsole.MarkupLine("[red]Email and Username cannot be empty[/]");
@@ -34,14 +37,15 @@ namespace Casino.Controllers {
 		}
 
 		public bool Login(string email, string password) {
-			if (string.IsNullOrEmpty(email) || string.IsNullOrEmpty(password)) {
+            loggedUser = userService.LoginUser(email, password);
+            if (string.IsNullOrEmpty(email) || string.IsNullOrEmpty(password)) {
 				AnsiConsole.MarkupLine("[red]Email and Password cannot be empty[/]");
 				return false;
 			}
 			
-			loggedUser = userService.LoginUser(email, password);
-			if (loggedUser == null) {
-				AnsiConsole.MarkupLine("[red]Error during login, try again[/]");
+			if (getLoggedUser() == null) {
+				Console.Clear();
+				AnsiConsole.MarkupLine("[red]Invalid Email or Password, try again[/]");
 				return false;
 			} else {
 				return true;
